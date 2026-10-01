@@ -11,12 +11,12 @@ function render(){
       <div class="day">${d.day}</div>
       <div class="date">${d.date}</div>
       <div class="weather-icon" aria-hidden="true">${d.icon}</div>
-      <div class="temp summit">${d.temp}°</div>
-      <div class="feels">دمای حسی: ${d.feels}°</div>
+      <div class="temp summit"><span>${d.temp}</span><span>°</span></div>
+      <div class="feels">دمای حسی: <bdi>${d.feels}°</bdi></div>
       <div class="metrics">
-        <div class="metric"><span>باد</span><strong>${d.wind} km/h</strong></div>
-        <div class="metric"><span>برف</span><strong>${d.snow} cm</strong></div>
-        <div class="metric"><span>ارتفاع معیار</span><strong class="summit">${data.summitElevation} m</strong></div>
+        <div class="metric"><span>باد</span><strong><bdi>${d.wind} km/h</bdi></strong></div>
+        <div class="metric"><span>برف</span><strong><bdi>${d.snow} cm</bdi></strong></div>
+        <div class="metric"><span>ارتفاع معیار</span><strong class="summit"><bdi>${data.summitElevation} m</bdi></strong></div>
       </div>
     </article>
   `).join("");
