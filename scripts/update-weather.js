@@ -18,7 +18,7 @@ function rowCells($, rowName, count) {
   if (cells.length < count) {
     cells = row.children().map((_, el) => $(el).text().replace(/\s+/g, " ").trim()).get();
   }
-  cells = cells.filter((v) => v !== "");
+  // Keep empty cells so every metric remains aligned with its forecast period.
   return cells.slice(-count);
 }
 
@@ -148,13 +148,14 @@ function summarizeDay(date, cells) {
   )[0]?.summary || "";
 
   return {
+    isoDate: date.toISOString().slice(0, 10),
     day: persianDay(date),
     date: persianDate(date),
     icon: conditionIcon(condition),
     condition: conditionLabel(condition),
-    temp: maxTemps.length ? Math.round(Math.max(...maxTemps)) : 0,
-    feels: chills.length ? Math.round(Math.min(...chills)) : 0,
-    wind: winds.length ? Math.round(Math.max(...winds)) : 0,
+    temp: maxTemps.length ? Math.round(Math.max(...maxTemps)) : null,
+    feels: chills.length ? Math.round(Math.min(...chills)) : null,
+    wind: winds.length ? Math.round(Math.max(...winds)) : null,
     snow: Math.round(snow * 10) / 10,
     humidity: humidities.length ? Math.round(average(humidities)) : null
   };
@@ -244,6 +245,26 @@ function summarizeDay(date, cells) {
 
   if (days.length < 3) throw new Error("Fewer than three future forecast days were parsed");
 
+  for (let i = 0; i < 3; i++) {
+    if (days[i].isoDate !== addDays(today, i + 1).toISOString().slice(0, 10))
+      throw new Error("Forecast must cover exactly tomorrow and the next two days");
+    if (![days[i].temp, days[i].feels, days[i].wind, days[i].humidity].every(Number.isFinite))
+      throw new Error("Required summit weather metrics are missing");
+  }
+
+  // The summit forecast is a model forecast, not a live station observation.
+  // Select today's period corresponding to the Tehran clock, never tomorrow's card.
+  const tehranHour = Number(new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Tehran", hour: "2-digit", hourCycle: "h23"
+  }).format(new Date()));
+  const currentPeriod = tehranHour < 12 ? "AM" : tehranHour < 18 ? "PM" : "night";
+  const currentCell = cells.find(c => dateKey(c.date) === todayKey && c.period === currentPeriod);
+  const current = currentCell ? {
+    ...summarizeDay(today, [currentCell]),
+    kind: "summit-period-forecast",
+    period: currentPeriod
+  } : null;
+
   const payload = {
     summitElevation: 3599,
     title: "پیش‌بینی ۳ روز آینده",
@@ -251,6 +272,7 @@ function summarizeDay(date, cells) {
     source: "Snow-Forecast.com",
     sourceUrl: SOURCE_URL,
     updatedAt: new Date().toISOString(),
+    current,
     days
   };
 

@@ -25,7 +25,7 @@ function formatUpdated(){
 }
 
 function render(){
-  const first = data.days?.[0];
+  const first = data.current;
   if(first){
     document.getElementById("heroIcon").textContent = first.icon;
     document.getElementById("heroCondition").textContent = first.condition || "—";
@@ -34,6 +34,8 @@ function render(){
     document.getElementById("heroWind").textContent = first.wind;
     document.getElementById("heroSnow").textContent = first.snow;
     document.getElementById("heroHumidity").textContent = first.humidity ?? "—";
+  } else {
+    document.getElementById("heroCondition").textContent = "دادهٔ فعلی در دسترس نیست";
   }
 
   grid.innerHTML = data.days.map((d, index)=>`
