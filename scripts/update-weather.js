@@ -153,6 +153,12 @@ function summarizeDay(date, cells) {
   const firstDisplayedDay = normalizeDay(dayNames[0]);
 
   if (!firstTime || !firstDisplayedDay) {
+    const rows = $("table tr").map((_, el) => ({
+      row: $(el).attr("data-row") || "",
+      cls: $(el).attr("class") || "",
+      text: $(el).text().replace(/\s+/g, " ").trim().slice(0, 300)
+    })).get().filter((x) => x.text);
+    console.log("FORECAST_TABLE_ROWS", JSON.stringify(rows.slice(0, 30)));
     throw new Error(`Could not parse forecast header (time=${firstTimeRaw}, day=${dayNames[0]})`);
   }
 
