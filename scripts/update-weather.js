@@ -1,56 +1,71 @@
 const fs = require("fs");
 const path = require("path");
-const snowModule = require("snow-forecast-sfr");
-const snow = snowModule.default || snowModule;
+const cheerio = require("cheerio");
+
+const SOURCE_URL = "https://www.snow-forecast.com/resorts/Dizin/6day/top";
 const OUTPUT = path.join(process.cwd(), "data.js");
+const PERIODS = ["AM", "PM", "night"];
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-function getForecast() {
-  return new Promise((resolve, reject) => {
-    snow.parseResort(
-      "Dizin",
-      "top",
-      (result) => {
-        if (!result || result.error) {
-          reject(new Error(result?.message || "Unable to read Snow-Forecast data"));
-          return;
-        }
-        resolve(result);
-      },
-      { inMetric: true }
-    );
-  });
+function number(text) {
+  const n = Number.parseFloat(String(text || "").replace(/[^0-9+.-]/g, ""));
+  return Number.isFinite(n) ? n : null;
 }
 
-function ymdFromDate(date) {
-  return date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate();
+function normalizeDay(text) {
+  const raw = String(text || "").trim().split(/\s+/)[0].toLowerCase();
+  return WEEKDAYS.find((day) => day.toLowerCase().startsWith(raw)) || null;
 }
 
-function todayInTehranYmd() {
+function previousDay(day) {
+  const i = WEEKDAYS.indexOf(day);
+  return WEEKDAYS[(i + 6) % 7];
+}
+
+function tehranToday() {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Tehran",
     year: "numeric",
     month: "2-digit",
     day: "2-digit"
   }).formatToParts(new Date());
-  const get = (type) => Number(parts.find((p) => p.type === type)?.value || 0);
-  return get("year") * 10000 + get("month") * 100 + get("day");
+  const get = (type) => Number(parts.find((p) => p.type === type)?.value);
+  return new Date(Date.UTC(get("year"), get("month") - 1, get("day"), 12));
 }
 
-function parseForecastDate(value) {
-  const d = new Date(`${value} 12:00:00 GMT`);
-  return Number.isNaN(d.getTime()) ? null : d;
+function addDays(date, days) {
+  const d = new Date(date);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d;
+}
+
+function dateKey(date) {
+  return date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate();
+}
+
+function nearestDateForWeekday(targetDay, around) {
+  const targetIndex = WEEKDAYS.indexOf(targetDay);
+  let best = null;
+  for (let offset = -3; offset <= 3; offset++) {
+    const d = addDays(around, offset);
+    if (d.getUTCDay() !== targetIndex) continue;
+    const score = Math.abs(offset) + (offset > 1 ? 0.5 : 0);
+    if (!best || score < best.score) best = { date: d, score };
+  }
+  if (!best) throw new Error("Could not align Snow-Forecast day headings with Tehran date");
+  return best.date;
 }
 
 function persianDay(date) {
   return new Intl.DateTimeFormat("fa-IR", {
-    timeZone: "Asia/Tehran",
+    timeZone: "UTC",
     weekday: "long"
   }).format(date);
 }
 
 function persianDate(date) {
   return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
-    timeZone: "Asia/Tehran",
+    timeZone: "UTC",
     month: "short",
     day: "numeric"
   }).format(date);
@@ -80,16 +95,23 @@ function conditionIcon(summary = "") {
   return "🌤️";
 }
 
-function finiteValues(cells, key) {
-  return cells.map((c) => Number(c[key])).filter(Number.isFinite);
+function toMetric(value, kind, isMetric) {
+  if (value == null || isMetric) return value;
+  if (kind === "temp") return Math.round(((value - 32) * 5 / 9) * 10) / 10;
+  if (kind === "wind") return Math.round(value * 1.60934);
+  if (kind === "snow") return Math.round(value * 2.54 * 10) / 10;
+  return value;
 }
 
-function summarizeDay(dateText, cells) {
-  const date = parseForecastDate(dateText);
-  const maxTemps = finiteValues(cells, "maxTemp");
-  const chills = finiteValues(cells, "windChill");
-  const winds = finiteValues(cells, "wind");
-  const snow = finiteValues(cells, "snow").reduce((a, b) => a + b, 0);
+function values(cells, key) {
+  return cells.map((c) => c[key]).filter(Number.isFinite);
+}
+
+function summarizeDay(date, cells) {
+  const maxTemps = values(cells, "maxTemp");
+  const chills = values(cells, "windChill");
+  const winds = values(cells, "wind");
+  const snow = values(cells, "snow").reduce((a, b) => a + b, 0);
   const condition = [...cells].sort(
     (a, b) => conditionRank(b.summary) - conditionRank(a.summary)
   )[0]?.summary || "";
@@ -98,50 +120,93 @@ function summarizeDay(dateText, cells) {
     day: persianDay(date),
     date: persianDate(date),
     icon: conditionIcon(condition),
-    temp: maxTemps.length ? Math.max(...maxTemps) : 0,
-    feels: chills.length ? Math.min(...chills) : 0,
-    wind: winds.length ? Math.max(...winds) : 0,
+    temp: maxTemps.length ? Math.round(Math.max(...maxTemps)) : 0,
+    feels: chills.length ? Math.round(Math.min(...chills)) : 0,
+    wind: winds.length ? Math.round(Math.max(...winds)) : 0,
     snow: Math.round(snow * 10) / 10
   };
 }
 
 (async () => {
-  const result = await getForecast();
-  const groups = new Map();
-
-  for (const cell of result.forecast || []) {
-    if (!cell?.date) continue;
-    const d = parseForecastDate(cell.date);
-    if (!d) continue;
-    const key = cell.date;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(cell);
-  }
-
-  const today = todayInTehranYmd();
-  let available = [...groups.entries()].filter(([dateText]) => {
-    const d = parseForecastDate(dateText);
-    return d && ymdFromDate(d) >= today;
+  const response = await fetch(SOURCE_URL, {
+    headers: {
+      "user-agent": "Mozilla/5.0 (compatible; DizinWeatherBot/1.0; +https://github.com/erfanchgh/dizin-weather-system)",
+      "accept-language": "en-US,en;q=0.9"
+    }
   });
+  if (!response.ok) throw new Error(`Snow-Forecast HTTP ${response.status}`);
 
-  if (available.length < 3) {
-    available = [...groups.entries()];
+  const html = await response.text();
+  const $ = cheerio.load(html);
+
+  const periods = $(".forecast-table-time__period").map((_, el) => $(el).text().trim()).get();
+  const dayNames = $(".forecast-table-days__name").map((_, el) => $(el).text().trim()).get();
+  const summaries = $('table tr[data-row="phrases"] span').map((_, el) => $(el).text().trim()).get();
+  const winds = $('table tr[data-row="wind"] .forecast-table-wind__container svg text').map((_, el) => number($(el).text())).get();
+  const snows = $("span.snow").map((_, el) => number($(el).text()) || 0).get();
+  const maxTemps = $('table tr[data-row="temperature-max"] span.temp').map((_, el) => number($(el).text())).get();
+  const minTemps = $('table tr[data-row="temperature-min"] span.temp').map((_, el) => number($(el).text())).get();
+  const chills = $('table tr[data-row="temperature-chill"] span.temp').map((_, el) => number($(el).text())).get();
+
+  const firstTimeRaw = periods[0];
+  const firstTime = PERIODS.find((p) => p.toLowerCase() === String(firstTimeRaw).toLowerCase());
+  const firstDisplayedDay = normalizeDay(dayNames[0]);
+
+  if (!firstTime || !firstDisplayedDay) {
+    throw new Error(`Could not parse forecast header (time=${firstTimeRaw}, day=${dayNames[0]})`);
   }
 
-  const days = available.slice(0, 3).map(([dateText, cells]) =>
-    summarizeDay(dateText, cells)
-  );
+  const firstCellDay = firstTime === "night" ? previousDay(firstDisplayedDay) : firstDisplayedDay;
+  const today = tehranToday();
+  const baseDate = nearestDateForWeekday(firstCellDay, today);
+  const timeOffset = PERIODS.indexOf(firstTime);
 
-  if (days.length < 3) {
-    throw new Error("Snow-Forecast returned fewer than three forecast days");
+  const isMetric = $(".deg-c input").attr("checked") === "checked" ||
+                   /km\/h/.test($('table tr[data-row="wind"]').text());
+
+  const counts = [periods.length, summaries.length, winds.length, maxTemps.length, chills.length]
+    .filter((n) => n > 0);
+  const cellCount = Math.min(18, ...counts);
+  if (!Number.isFinite(cellCount) || cellCount < 6) {
+    throw new Error(`Forecast table incomplete: periods=${periods.length}, summaries=${summaries.length}, winds=${winds.length}, max=${maxTemps.length}, chill=${chills.length}`);
   }
+
+  const cells = [];
+  for (let i = 0; i < cellCount; i++) {
+    const dayOffset = Math.floor((timeOffset + i) / 3);
+    const date = addDays(baseDate, dayOffset);
+    cells.push({
+      date,
+      period: PERIODS[(timeOffset + i) % 3],
+      summary: summaries[i] || "",
+      wind: toMetric(winds[i], "wind", isMetric),
+      snow: toMetric(snows[i] || 0, "snow", isMetric) || 0,
+      maxTemp: toMetric(maxTemps[i], "temp", isMetric),
+      minTemp: toMetric(minTemps[i], "temp", isMetric),
+      windChill: toMetric(chills[i], "temp", isMetric)
+    });
+  }
+
+  const grouped = new Map();
+  for (const cell of cells) {
+    const key = dateKey(cell.date);
+    if (!grouped.has(key)) grouped.set(key, { date: cell.date, cells: [] });
+    grouped.get(key).cells.push(cell);
+  }
+
+  const todayKey = dateKey(today);
+  const days = [...grouped.values()]
+    .filter((g) => dateKey(g.date) >= todayKey)
+    .slice(0, 3)
+    .map((g) => summarizeDay(g.date, g.cells));
+
+  if (days.length < 3) throw new Error("Fewer than three future forecast days were parsed");
 
   const payload = {
     summitElevation: 3599,
     note: "پیش‌بینی قله دیزین؛ شرایط جوی کوهستان می‌تواند سریع تغییر کند.",
     source: "Snow-Forecast.com",
-    sourceUrl: "https://www.snow-forecast.com/resorts/Dizin/6day/top",
-    issued: result.issuedDate || "",
+    sourceUrl: SOURCE_URL,
     updatedAt: new Date().toISOString(),
     days
   };
@@ -152,7 +217,7 @@ function summarizeDay(dateText, cells) {
     "utf8"
   );
 
-  console.log("Updated Dizin summit forecast:", days);
+  console.log("Updated Dizin summit forecast:", JSON.stringify(days));
 })().catch((error) => {
   console.error(error);
   process.exit(1);
