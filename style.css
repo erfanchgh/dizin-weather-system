@@ -21,7 +21,7 @@ body{min-height:100vh}
   background:#111;border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,.45)
 }
 .story-bg{
-  position:absolute;inset:0;background-image:url("assets/background.svg");
+  position:absolute;inset:0;background-image:url("assets/DJI_0518.jpg"),url("assets/background.svg");
   background-size:cover;background-position:center;transform:scale(1.01)
 }
 .overlay{
@@ -34,10 +34,12 @@ body{min-height:100vh}
   position:absolute;top:7.2%;right:6.5%;left:6.5%;display:flex;align-items:center;gap:16px
 }
 .brand-mark{
-  width:72px;height:72px;border:1px solid rgba(255,255,255,.5);border-radius:50%;
-  display:grid;place-items:center;background:rgba(5,8,12,.32);backdrop-filter:blur(8px);
-  font-size:13px;font-weight:700;letter-spacing:1.2px
+  width:108px;height:62px;border:1px solid rgba(255,255,255,.16);border-radius:14px;
+  display:grid;place-items:center;background:rgba(0,0,0,.66);backdrop-filter:blur(8px);
+  overflow:hidden;padding:5px
 }
+.brand-logo{width:100%;height:100%;object-fit:contain;display:block}
+.brand-fallback{display:none;font-size:13px;font-weight:700;letter-spacing:1.2px}
 .title-block{flex:1;text-align:right}
 .title-block h1{font-size:31px;margin:0 0 6px;font-weight:800}
 .title-block p{font-size:14px;margin:0;color:var(--muted)}
@@ -72,7 +74,7 @@ body{min-height:100vh}
   .app-shell{padding:10px}
   .story{border-radius:14px}
   .story-header{gap:10px}
-  .brand-mark{width:54px;height:54px;font-size:10px}
+  .brand-mark{width:86px;height:50px;padding:4px}.brand-fallback{font-size:10px}
   .title-block h1{font-size:23px}
   .title-block p{font-size:11px}
   .forecast-grid{gap:6px}
