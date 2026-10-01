@@ -1,9 +1,36 @@
 window.DIZIN_WEATHER = {
-  summitElevation: 3599,
-  note: "شرایط جوی کوهستان متغیر است؛ پیش از حرکت آخرین اطلاعیه مجموعه را بررسی کنید.",
-  days: [
-    { day:"شنبه", date:"نمونه", icon:"🌨️", temp:-4, feels:-9, wind:18, snow:5 },
-    { day:"یکشنبه", date:"نمونه", icon:"🌤️", temp:-2, feels:-6, wind:14, snow:1 },
-    { day:"دوشنبه", date:"نمونه", icon:"☀️", temp:0, feels:-3, wind:11, snow:0 }
+  "summitElevation": 3599,
+  "note": "پیش‌بینی قله دیزین؛ شرایط جوی کوهستان می‌تواند سریع تغییر کند.",
+  "source": "Snow-Forecast.com",
+  "sourceUrl": "https://www.snow-forecast.com/resorts/Dizin/6day/top",
+  "updatedAt": "2026-10-01T17:32:10.797Z",
+  "days": [
+    {
+      "day": "پنجشنبه",
+      "date": "۹ مهر",
+      "icon": "🌤️",
+      "temp": 0,
+      "feels": 0,
+      "wind": 0,
+      "snow": 0.4
+    },
+    {
+      "day": "جمعه",
+      "date": "۱۰ مهر",
+      "icon": "🌦️",
+      "temp": 0,
+      "feels": 0,
+      "wind": 0,
+      "snow": 0
+    },
+    {
+      "day": "شنبه",
+      "date": "۱۱ مهر",
+      "icon": "🌦️",
+      "temp": 0,
+      "feels": 0,
+      "wind": 0,
+      "snow": 0
+    }
   ]
 };
