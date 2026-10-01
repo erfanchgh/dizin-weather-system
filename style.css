@@ -41,45 +41,24 @@ body{min-height:100vh}
 }
 
 .story-header{
-  position:absolute;top:5.2%;right:6.8%;left:6.8%;
-  display:flex;align-items:flex-start;gap:16px
+  position:absolute;top:5.6%;right:6.8%;left:6.8%;
+  display:flex;align-items:center;gap:14px
 }
 .brand-mark{
-  width:104px;height:58px;padding:0;
+  width:92px;height:54px;padding:4px;
   display:grid;place-items:center;
-  background:transparent;
-  border:0;
-  border-radius:0;
-  backdrop-filter:none;
-  overflow:visible;
-  filter:drop-shadow(0 3px 12px rgba(0,0,0,.28))
+  background:rgba(4,8,15,.38);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  backdrop-filter:blur(10px);
+  overflow:hidden
 }
-.brand-logo{width:100%;height:100%;object-fit:contain;object-position:center}
-.brand-fallback{font-size:11px;font-weight:800;letter-spacing:1.8px}
-.title-block{
-  flex:1;text-align:right;
-  text-shadow:0 2px 14px rgba(0,0,0,.38)
-}
-.eyebrow{
-  display:block;
-  direction:ltr;
-  margin-bottom:5px;
-  font:700 8.5px/1.1 Arial,sans-serif;
-  letter-spacing:1.7px;
-  color:rgba(255,255,255,.68)
-}
-.title-block h1{
-  font-size:28px;
-  margin:0 0 4px;
-  font-weight:900;
-  letter-spacing:-.55px
-}
-.title-block p{
-  font-size:11.5px;
-  margin:0;
-  color:rgba(255,255,255,.78)
-}
-.title-block bdi{color:#fff;font-weight:800}
+.brand-logo{width:100%;height:100%;object-fit:contain}
+.brand-fallback{font-size:11px;font-weight:700;letter-spacing:1.4px}
+.title-block{flex:1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.title-block h1{font-size:29px;margin:0 0 5px;font-weight:850;letter-spacing:-.4px}
+.title-block p{font-size:12px;margin:0;color:var(--muted)}
+.title-block bdi{color:#fff;font-weight:700}
 
 .forecast-wrap{
   position:absolute;top:48%;right:6.8%;left:6.8%;
@@ -157,11 +136,10 @@ body{min-height:100vh}
 @media(max-width:480px){
   .app-shell{padding:9px}
   .story{border-radius:14px}
-  .story-header{top:4.8%;right:6%;left:6%;gap:12px}
-  .brand-mark{width:88px;height:49px}
-  .eyebrow{font-size:7px;letter-spacing:1.3px;margin-bottom:4px}
-  .title-block h1{font-size:21px;margin-bottom:3px}
-  .title-block p{font-size:9.5px}
+  .story-header{top:5.2%;right:6%;left:6%;gap:10px}
+  .brand-mark{width:78px;height:46px;border-radius:12px}
+  .title-block h1{font-size:22px}
+  .title-block p{font-size:10px}
 
   .forecast-wrap{top:49.5%;right:6%;left:6%}
   .summit-label{font-size:8px;padding:5px 8px;margin-bottom:7px}
