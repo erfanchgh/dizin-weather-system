@@ -83,3 +83,25 @@ body{min-height:100vh}
   .metric{font-size:9px}
   .story-footer p{font-size:10px}
 }
+
+/* RTL numeric cleanup + refined mobile proportions */
+.temp,.metric strong,.source{
+  direction:ltr;
+  unicode-bidi:isolate;
+}
+.metric strong{
+  white-space:nowrap;
+}
+.day-card{
+  min-height:360px;
+}
+@media(max-width:480px){
+  .forecast-grid{top:33.5%;right:7%;left:7%;gap:7px}
+  .day-card{min-height:270px;padding:12px 8px}
+  .day-card .date{margin-bottom:12px}
+  .weather-icon{margin:2px 0 10px}
+  .feels{margin-bottom:12px}
+  .metrics{gap:7px}
+  .metric{padding-top:8px}
+  .story-footer{right:7%;left:7%;bottom:5.5%}
+}
