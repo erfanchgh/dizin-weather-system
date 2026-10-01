@@ -4,7 +4,7 @@ window.DIZIN_WEATHER = {
   "note": "شرایط جوی کوهستان متغیر است. پیش از حرکت، آخرین وضعیت هوا و باز بودن مسیرها را بررسی کنید.",
   "source": "Snow-Forecast.com",
   "sourceUrl": "https://www.snow-forecast.com/resorts/Dizin/6day/top",
-  "updatedAt": "2026-10-01T18:56:01.730Z",
+  "updatedAt": "2026-10-01T19:05:13.642Z",
   "days": [
     {
       "day": "جمعه",
