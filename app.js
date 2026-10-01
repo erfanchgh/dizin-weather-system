@@ -1,9 +1,19 @@
+const assets = window.DIZIN_ASSETS || null;
 const data = window.DIZIN_WEATHER;
 const grid = document.getElementById("forecastGrid");
 const note = document.getElementById("note");
 const picker = document.getElementById("backgroundPicker");
 const reset = document.getElementById("resetBackground");
 const bg = document.getElementById("storyBg");
+const brandLogo = document.querySelector(".brand-logo");
+
+if (assets?.background) bg.style.backgroundImage = `url("${assets.background}")`;
+if (assets?.logo && brandLogo) {
+  brandLogo.src = assets.logo;
+  brandLogo.style.display = "block";
+  const fallback = brandLogo.nextElementSibling;
+  if (fallback) fallback.style.display = "none";
+}
 
 function render(){
   grid.innerHTML = data.days.map((d)=>`
@@ -31,7 +41,7 @@ picker.addEventListener("change",(event)=>{
 });
 
 reset.addEventListener("click",()=>{
-  bg.style.backgroundImage = 'url("assets/background.svg")';
+  bg.style.backgroundImage = assets?.background ? `url("${assets.background}")` : 'url("assets/background.svg")';
   picker.value = "";
 });
 
