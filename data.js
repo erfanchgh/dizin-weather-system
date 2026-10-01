@@ -4,9 +4,24 @@ window.DIZIN_WEATHER = {
   "note": "شرایط جوی کوهستان متغیر است. پیش از حرکت، آخرین وضعیت هوا و باز بودن مسیرها را بررسی کنید.",
   "source": "Snow-Forecast.com",
   "sourceUrl": "https://www.snow-forecast.com/resorts/Dizin/6day/top",
-  "updatedAt": "2026-10-01T19:05:13.642Z",
+  "updatedAt": "2026-10-01T19:18:58.319Z",
+  "current": {
+    "isoDate": "2026-10-01",
+    "day": "پنجشنبه",
+    "date": "۹ مهر",
+    "icon": "🌤️",
+    "condition": "کمی ابری",
+    "temp": 6,
+    "feels": 1,
+    "wind": 20,
+    "snow": 0,
+    "humidity": 52,
+    "kind": "summit-period-forecast",
+    "period": "night"
+  },
   "days": [
     {
+      "isoDate": "2026-10-02",
       "day": "جمعه",
       "date": "۱۰ مهر",
       "icon": "🌦️",
@@ -18,6 +33,7 @@ window.DIZIN_WEATHER = {
       "humidity": 59
     },
     {
+      "isoDate": "2026-10-03",
       "day": "شنبه",
       "date": "۱۱ مهر",
       "icon": "🌦️",
@@ -29,6 +45,7 @@ window.DIZIN_WEATHER = {
       "humidity": 64
     },
     {
+      "isoDate": "2026-10-04",
       "day": "یکشنبه",
       "date": "۱۲ مهر",
       "icon": "🌤️",
