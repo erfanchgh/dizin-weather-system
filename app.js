@@ -14,18 +14,14 @@ function applyAssets(){
   if (assets.logo && brandLogo) brandLogo.src = assets.logo;
 }
 
-function persianNumber(value){
-  return String(value).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
-}
-
 function formatUpdated(){
   const d = new Date(data.updatedAt);
   const day = new Intl.DateTimeFormat("fa-IR",{timeZone:"Asia/Tehran",weekday:"long"}).format(d);
-  const stamp = new Intl.DateTimeFormat("fa-IR-u-ca-persian",{
-    timeZone:"Asia/Tehran",day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"
-  }).format(d);
+  const date = new Intl.DateTimeFormat("fa-IR-u-ca-persian",{timeZone:"Asia/Tehran",day:"numeric",month:"long",year:"numeric"}).format(d);
+  const time = new Intl.DateTimeFormat("fa-IR",{timeZone:"Asia/Tehran",hour:"2-digit",minute:"2-digit",hour12:false}).format(d);
   document.getElementById("updateDay").textContent = day;
-  document.getElementById("updateStamp").textContent = `آخرین به‌روزرسانی: ${stamp}`;
+  document.getElementById("updateDate").textContent = date;
+  document.getElementById("updateTime").textContent = `آخرین به‌روزرسانی ${time}`;
 }
 
 function render(){
@@ -33,7 +29,7 @@ function render(){
   if(first){
     document.getElementById("heroIcon").textContent = first.icon;
     document.getElementById("heroCondition").textContent = first.condition || "—";
-    document.getElementById("heroTemp").textContent = `${first.temp}°`;
+    document.getElementById("heroTemp").textContent = `${first.temp}°C`;
     document.getElementById("heroFeels").textContent = `${first.feels}°`;
     document.getElementById("heroWind").textContent = first.wind;
     document.getElementById("heroSnow").textContent = first.snow;
@@ -46,7 +42,7 @@ function render(){
       <div class="date">${d.date}</div>
       <div class="weather-icon" aria-hidden="true">${d.icon}</div>
       <div class="day-condition">${d.condition || ""}</div>
-      <div class="day-temp">${d.temp}°</div>
+      <div class="day-temp">${d.temp}°C</div>
       <div class="day-feels">دمای حسی: <bdi>${d.feels}°</bdi></div>
       <div class="day-metrics">
         <div class="metric-row"><span>باد</span><strong><bdi>${d.wind} km/h</bdi></strong></div>
