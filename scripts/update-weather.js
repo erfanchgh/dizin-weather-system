@@ -1,8 +1,7 @@
 const fs = require("fs");
 const path = require("path");
-const SnowRequest = require("snow-forecast-sfr").default;
-
-const snow = SnowRequest();
+const snowModule = require("snow-forecast-sfr");
+const snow = snowModule.default || snowModule;
 const OUTPUT = path.join(process.cwd(), "data.js");
 
 function getForecast() {
