@@ -22,7 +22,7 @@
       <div class="story-shade"></div>
 
       <header class="story-header">
-        <div class="brand-mark" aria-label="Dizin Resort">
+        <div class="brand-mark">
           <img class="brand-logo" alt="Dizin Resort" />
         </div>
 
@@ -34,42 +34,50 @@
 
         <div class="update-block">
           <strong id="updateDay">—</strong>
-          <span id="updateStamp">آخرین به‌روزرسانی: —</span>
+          <span id="updateDate">—</span>
+          <span class="update-line"></span>
+          <span id="updateTime">آخرین به‌روزرسانی —</span>
         </div>
       </header>
 
-      <section class="hero-weather">
-        <div class="hero-heading">روز اول</div>
-        <div class="hero-main">
-          <div class="hero-condition">
+      <section class="current-panel">
+        <div class="panel-ribbon">وضعیت فعلی</div>
+        <div class="current-content">
+          <div class="current-condition">
             <div class="hero-icon" id="heroIcon">🌤️</div>
             <strong id="heroCondition">—</strong>
           </div>
-          <div class="hero-temperature">
-            <div class="hero-temp" id="heroTemp">—°</div>
-            <div class="hero-feels">دمای حسی: <bdi id="heroFeels">—°</bdi></div>
+
+          <div class="current-temp">
+            <div id="heroTemp">—°</div>
+            <span>دمای حسی: <bdi id="heroFeels">—°</bdi></span>
           </div>
-        </div>
-        <div class="hero-metrics">
-          <div><span>باد</span><strong id="heroWind">—</strong><small>km/h</small></div>
-          <div><span>برف</span><strong id="heroSnow">—</strong><small>cm</small></div>
-          <div><span>رطوبت</span><strong id="heroHumidity">—</strong><small>%</small></div>
+
+          <div class="current-metrics">
+            <div class="metric-box"><span>باد</span><strong id="heroWind">—</strong><small>km/h</small></div>
+            <div class="metric-box"><span>برف</span><strong id="heroSnow">—</strong><small>cm</small></div>
+            <div class="metric-box"><span>رطوبت</span><strong id="heroHumidity">—</strong><small>%</small></div>
+          </div>
         </div>
       </section>
 
       <section class="forecast-wrap">
-        <div class="section-title">پیش‌بینی ۳ روز آینده</div>
+        <div class="forecast-heading"><span></span><strong>پیش‌بینی ۳ روز آینده</strong></div>
         <div class="forecast-grid" id="forecastGrid"></div>
       </section>
 
       <footer class="story-footer">
-        <div class="notice">
-          <strong>نکته امروز</strong>
+        <div class="notice-block">
+          <div class="notice-title">نکته امروز</div>
           <p id="note">شرایط جوی کوهستان متغیر است.</p>
+        </div>
+        <div class="status-block">
+          <span class="status-dot"></span>
+          <strong>اطلاعات قله دیزین</strong>
         </div>
         <div class="footer-line">
           <span>Dizin Resort</span>
-          <span>ارتفاع قله: ۳۵۹۹ متر</span>
+          <span>ارتفاع معیار: ۳۵۹۹ متر</span>
           <span>منبع: Snow-Forecast.com</span>
         </div>
       </footer>
