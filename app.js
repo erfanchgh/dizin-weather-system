@@ -8,6 +8,13 @@ const bg = document.getElementById("storyBg");
 const brandLogo = document.querySelector(".brand-logo");
 const brandFallback = document.querySelector(".brand-fallback");
 
+const heroDay = document.getElementById("heroDay");
+const heroIcon = document.getElementById("heroIcon");
+const heroTemp = document.getElementById("heroTemp");
+const heroFeels = document.getElementById("heroFeels");
+const heroWind = document.getElementById("heroWind");
+const heroSnow = document.getElementById("heroSnow");
+
 function applyAssets(){
   if (assets?.background) {
     bg.style.backgroundImage = `url("${assets.background}")`;
@@ -41,20 +48,34 @@ async function loadBundledAssets(){
 }
 
 function render(){
+  const first = data.days?.[0];
+  if (first) {
+    heroDay.textContent = `${first.day} · ${first.date}`;
+    heroIcon.textContent = first.icon;
+    heroTemp.textContent = `${first.temp}°`;
+    heroFeels.textContent = `${first.feels}°`;
+    heroWind.textContent = `${first.wind} km/h`;
+    heroSnow.textContent = `${first.snow} cm`;
+  }
+
   grid.innerHTML = data.days.map((d)=>`
     <article class="day-card">
-      <div class="day">${d.day}</div>
-      <div class="date">${d.date}</div>
+      <div class="day-main">
+        <div class="day">${d.day}</div>
+        <div class="date">${d.date}</div>
+      </div>
       <div class="weather-icon" aria-hidden="true">${d.icon}</div>
-      <div class="temp summit"><span>${d.temp}</span><span>°</span></div>
-      <div class="feels">دمای حسی: <bdi>${d.feels}°</bdi></div>
-      <div class="metrics">
-        <div class="metric"><span>باد</span><strong><bdi>${d.wind} km/h</bdi></strong></div>
-        <div class="metric"><span>برف</span><strong><bdi>${d.snow} cm</bdi></strong></div>
-        <div class="metric"><span>ارتفاع معیار</span><strong class="summit"><bdi>${data.summitElevation} m</bdi></strong></div>
+      <div class="day-stats">
+        <div class="day-temp">${d.temp}°</div>
+        <div class="day-sub">
+          <span>FEELS <bdi>${d.feels}°</bdi></span>
+          <span>WIND <bdi>${d.wind}</bdi></span>
+          <span>SNOW <bdi>${d.snow}</bdi></span>
+        </div>
       </div>
     </article>
   `).join("");
+
   note.textContent = data.note;
 }
 
