@@ -1,20 +1,25 @@
-name: Update Dizin Weather
+name: Daily Dizin Weather Story
 
 on:
   schedule:
-    - cron: "5 */4 * * *"
+    # 19:00 Tehran = 15:30 UTC
+    - cron: "30 15 * * *"
   workflow_dispatch:
   push:
     paths:
       - "package.json"
       - "scripts/update-weather.js"
+      - "scripts/render-story.js"
+      - "index.html"
+      - "style.css"
+      - "app.js"
       - ".github/workflows/update-weather.yml"
 
 permissions:
   contents: write
 
 jobs:
-  update-weather:
+  build-daily-story:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -28,17 +33,31 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Fetch Dizin summit forecast
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Restore Dizin visual assets
+        run: unzip -p dizin-assets.zip dizin-assets.js > dizin-assets.js
+
+      - name: Fetch next 3 days for Dizin summit
         run: npm run update-weather
 
-      - name: Commit updated forecast
+      - name: Start local preview server
+        run: |
+          python3 -m http.server 8000 >/tmp/dizin-server.log 2>&1 &
+          sleep 2
+
+      - name: Render 1080x1920 story PNG
+        run: npm run render-story
+
+      - name: Commit weather, site assets and PNG
         run: |
           git config user.name "dizin-weather-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data.js
+          git add data.js dizin-assets.js output/daily-story.png
           if git diff --cached --quiet; then
-            echo "No weather changes to commit."
+            echo "No changes to commit."
           else
-            git commit -m "Update Dizin summit weather"
+            git commit -m "Update daily Dizin weather story"
             git push
           fi
