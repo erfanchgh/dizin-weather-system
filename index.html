@@ -3,66 +3,80 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dizin Weather Story</title>
+  <title>پیش‌بینی هوای دیزین</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="app-shell">
     <section class="toolbar" aria-label="ابزارها">
-      <label class="upload-btn" for="backgroundPicker">تغییر عکس پس‌زمینه</label>
+      <a class="tool-link" href="output/daily-story.png" target="_blank" rel="noopener">باز کردن PNG استوری</a>
+      <label class="upload-btn" for="backgroundPicker">تغییر موقت پس‌زمینه</label>
       <input id="backgroundPicker" type="file" accept="image/*" hidden />
-      <button id="resetBackground" type="button">بازگشت به عکس پیش‌فرض</button>
     </section>
 
     <section class="story" id="story">
       <div class="story-bg" id="storyBg"></div>
-      <div class="overlay"></div>
-      <div class="speed-lines" aria-hidden="true"></div>
+      <div class="story-shade"></div>
 
       <header class="story-header">
         <div class="brand-mark" aria-label="Dizin Resort">
-          <img class="brand-logo" alt="Dizin Resort" style="display:none">
-          <span class="brand-fallback">DIZIN</span>
+          <img class="brand-logo" alt="Dizin Resort" />
         </div>
+
         <div class="title-block">
           <h1>پیست اسکی دیزین</h1>
-          <p>FORECAST / SUMMIT</p>
+          <p>گزارش وضعیت هوا</p>
+          <div class="summit-badge">قله / <bdi>۳۵۹۹</bdi> متر</div>
         </div>
-        <div class="summit-tag">
-          <span>SUMMIT</span>
-          <strong>3599 M</strong>
+
+        <div class="update-block">
+          <strong id="updateDay">—</strong>
+          <span id="updateStamp">آخرین به‌روزرسانی: —</span>
         </div>
       </header>
 
-      <section class="hero-weather" aria-label="وضعیت اصلی هوا">
-        <div class="hero-kicker" id="heroDay">—</div>
-        <div class="hero-row">
-          <div class="hero-icon" id="heroIcon">🌤️</div>
-          <div class="hero-temp" id="heroTemp">—°</div>
+      <section class="hero-weather">
+        <div class="hero-heading">روز اول</div>
+        <div class="hero-main">
+          <div class="hero-condition">
+            <div class="hero-icon" id="heroIcon">🌤️</div>
+            <strong id="heroCondition">—</strong>
+          </div>
+          <div class="hero-temperature">
+            <div class="hero-temp" id="heroTemp">—°</div>
+            <div class="hero-feels">دمای حسی: <bdi id="heroFeels">—°</bdi></div>
+          </div>
         </div>
-        <div class="hero-meta">
-          <span>دمای حسی <bdi id="heroFeels">—°</bdi></span>
-          <span>باد <bdi id="heroWind">— km/h</bdi></span>
-          <span>برف <bdi id="heroSnow">— cm</bdi></span>
+        <div class="hero-metrics">
+          <div><span>باد</span><strong id="heroWind">—</strong><small>km/h</small></div>
+          <div><span>برف</span><strong id="heroSnow">—</strong><small>cm</small></div>
+          <div><span>رطوبت</span><strong id="heroHumidity">—</strong><small>%</small></div>
         </div>
       </section>
 
       <section class="forecast-wrap">
-        <div class="section-label">
-          <span>03 DAY</span>
-          <strong>پیش‌بینی سه‌روزه</strong>
-        </div>
-        <div class="forecast-stack" id="forecastGrid"></div>
+        <div class="section-title">پیش‌بینی ۳ روز آینده</div>
+        <div class="forecast-grid" id="forecastGrid"></div>
       </section>
 
       <footer class="story-footer">
-        <p id="note">شرایط جوی کوهستان متغیر است؛ پیش از حرکت آخرین اطلاعیه مجموعه را بررسی کنید.</p>
-        <span class="source">Snow-Forecast · Dizin Summit</span>
+        <div class="notice">
+          <strong>نکته امروز</strong>
+          <p id="note">شرایط جوی کوهستان متغیر است.</p>
+        </div>
+        <div class="footer-line">
+          <span>Dizin Resort</span>
+          <span>ارتفاع قله: ۳۵۹۹ متر</span>
+          <span>منبع: Snow-Forecast.com</span>
+        </div>
       </footer>
     </section>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="dizin-assets.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
