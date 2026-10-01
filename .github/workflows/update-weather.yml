@@ -18,6 +18,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: dizin-daily-weather-story
+  cancel-in-progress: true
+
 jobs:
   build-daily-story:
     runs-on: ubuntu-latest
