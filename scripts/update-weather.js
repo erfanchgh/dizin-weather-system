@@ -139,7 +139,11 @@ function summarizeDay(date, cells) {
   const html = await response.text();
   const $ = cheerio.load(html);
 
-  const periods = $(".forecast-table-time__period").map((_, el) => $(el).text().trim()).get();
+  let periods = $(".forecast-table-time__period").map((_, el) => $(el).text().trim()).get();
+  if (!periods.length) {
+    periods = ($('table tr[data-row="time"]').text().match(/AM|PM|night/gi) || [])
+      .map((p) => p.toLowerCase() === "night" ? "night" : p.toUpperCase());
+  }
   const dayNames = $(".forecast-table-days__name").map((_, el) => $(el).text().trim()).get();
   const summaries = $('table tr[data-row="phrases"] span').map((_, el) => $(el).text().trim()).get();
   const winds = $('table tr[data-row="wind"] .forecast-table-wind__container svg text').map((_, el) => number($(el).text())).get();
@@ -153,12 +157,6 @@ function summarizeDay(date, cells) {
   const firstDisplayedDay = normalizeDay(dayNames[0]);
 
   if (!firstTime || !firstDisplayedDay) {
-    const rows = $("table tr").map((_, el) => ({
-      row: $(el).attr("data-row") || "",
-      cls: $(el).attr("class") || "",
-      text: $(el).text().replace(/\s+/g, " ").trim().slice(0, 300)
-    })).get().filter((x) => x.text);
-    console.log("FORECAST_TABLE_ROWS", JSON.stringify(rows.slice(0, 30)));
     throw new Error(`Could not parse forecast header (time=${firstTimeRaw}, day=${dayNames[0]})`);
   }
 
