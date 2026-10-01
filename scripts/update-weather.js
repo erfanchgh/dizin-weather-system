@@ -62,7 +62,7 @@ function nearestDateForWeekday(targetDay, around) {
     const score = Math.abs(offset) + (offset > 1 ? 0.5 : 0);
     if (!best || score < best.score) best = { date: d, score };
   }
-  if (!best) throw new Error("Could not align Snow-Forecast day headings with Tehran date");
+  if (!best) throw new Error("Could not align Snow-Forecast headings with Tehran date");
   return best.date;
 }
 
@@ -76,7 +76,7 @@ function persianDay(date) {
 function persianDate(date) {
   return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
     timeZone: "UTC",
-    month: "short",
+    month: "long",
     day: "numeric"
   }).format(date);
 }
@@ -105,6 +105,22 @@ function conditionIcon(summary = "") {
   return "🌤️";
 }
 
+function conditionLabel(summary = "") {
+  const s = summary.toLowerCase();
+  if (s.includes("thunder")) return "رعدوبرق";
+  if (s.includes("heavy snow")) return "بارش سنگین برف";
+  if (s.includes("snow shwr")) return "رگبار برف";
+  if (s.includes("snow")) return "برفی";
+  if (s.includes("heavy rain")) return "بارش شدید باران";
+  if (s.includes("rain shwr")) return "رگبار باران";
+  if (s.includes("light rain")) return "باران سبک";
+  if (s.includes("rain")) return "بارانی";
+  if (s.includes("some cloud")) return "کمی ابری";
+  if (s.includes("cloud")) return "ابری";
+  if (s.includes("clear")) return "صاف";
+  return "متغیر";
+}
+
 function toMetric(value, kind, isMetric) {
   if (value == null || isMetric) return value;
   if (kind === "temp") return Math.round(((value - 32) * 5 / 9) * 10) / 10;
@@ -117,10 +133,15 @@ function values(cells, key) {
   return cells.map((c) => c[key]).filter(Number.isFinite);
 }
 
+function average(nums) {
+  return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
+}
+
 function summarizeDay(date, cells) {
   const maxTemps = values(cells, "maxTemp");
   const chills = values(cells, "windChill");
   const winds = values(cells, "wind");
+  const humidities = values(cells, "humidity");
   const snow = values(cells, "snow").reduce((a, b) => a + b, 0);
   const condition = [...cells].sort(
     (a, b) => conditionRank(b.summary) - conditionRank(a.summary)
@@ -130,17 +151,19 @@ function summarizeDay(date, cells) {
     day: persianDay(date),
     date: persianDate(date),
     icon: conditionIcon(condition),
+    condition: conditionLabel(condition),
     temp: maxTemps.length ? Math.round(Math.max(...maxTemps)) : 0,
     feels: chills.length ? Math.round(Math.min(...chills)) : 0,
     wind: winds.length ? Math.round(Math.max(...winds)) : 0,
-    snow: Math.round(snow * 10) / 10
+    snow: Math.round(snow * 10) / 10,
+    humidity: humidities.length ? Math.round(average(humidities)) : null
   };
 }
 
 (async () => {
   const response = await fetch(SOURCE_URL, {
     headers: {
-      "user-agent": "Mozilla/5.0 (compatible; DizinWeatherBot/1.0; +https://github.com/erfanchgh/dizin-weather-system)",
+      "user-agent": "Mozilla/5.0 (compatible; DizinWeatherBot/1.1; +https://github.com/erfanchgh/dizin-weather-system)",
       "accept-language": "en-US,en;q=0.9"
     }
   });
@@ -154,21 +177,16 @@ function summarizeDay(date, cells) {
     periods = ($('table tr[data-row="time"]').text().match(/AM|PM|night/gi) || [])
       .map((p) => p.toLowerCase() === "night" ? "night" : p.toUpperCase());
   }
+
   const dayNames = $(".forecast-table-days__name").map((_, el) => $(el).text().trim()).get();
   const periodCount = periods.length;
-  const phraseCells = rowCells($, "phrases", periodCount);
-  const windCells = rowCells($, "wind", periodCount);
-  const snowCells = rowCells($, "snow", periodCount);
-  const maxTempCells = rowCells($, "temperature-max", periodCount);
-  const minTempCells = rowCells($, "temperature-min", periodCount);
-  const chillCells = rowCells($, "temperature-chill", periodCount);
-
-  const summaries = phraseCells;
-  const winds = windCells.map(number);
-  const snows = snowCells.map((v) => number(v) || 0);
-  const maxTemps = maxTempCells.map(number);
-  const minTemps = minTempCells.map(number);
-  const chills = chillCells.map(number);
+  const summaries = rowCells($, "phrases", periodCount);
+  const winds = rowCells($, "wind", periodCount).map(number);
+  const snows = rowCells($, "snow", periodCount).map((v) => number(v) || 0);
+  const maxTemps = rowCells($, "temperature-max", periodCount).map(number);
+  const minTemps = rowCells($, "temperature-min", periodCount).map(number);
+  const chills = rowCells($, "temperature-chill", periodCount).map(number);
+  const humidities = rowCells($, "humidity", periodCount).map(number);
 
   const firstTimeRaw = periods[0];
   const firstTime = PERIODS.find((p) => p.toLowerCase() === String(firstTimeRaw).toLowerCase());
@@ -190,7 +208,7 @@ function summarizeDay(date, cells) {
     .filter((n) => n > 0);
   const cellCount = Math.min(18, ...counts);
   if (!Number.isFinite(cellCount) || cellCount < 6) {
-    throw new Error(`Forecast table incomplete: periods=${periods.length}, summaries=${summaries.length}, winds=${winds.length}, max=${maxTemps.length}, chill=${chills.length}`);
+    throw new Error("Forecast table is incomplete");
   }
 
   const cells = [];
@@ -205,7 +223,8 @@ function summarizeDay(date, cells) {
       snow: toMetric(snows[i] || 0, "snow", isMetric) || 0,
       maxTemp: toMetric(maxTemps[i], "temp", isMetric),
       minTemp: toMetric(minTemps[i], "temp", isMetric),
-      windChill: toMetric(chills[i], "temp", isMetric)
+      windChill: toMetric(chills[i], "temp", isMetric),
+      humidity: humidities[i]
     });
   }
 
@@ -216,9 +235,10 @@ function summarizeDay(date, cells) {
     grouped.get(key).cells.push(cell);
   }
 
+  // At 19:00 Tehran the story is for tomorrow + the following two days.
   const todayKey = dateKey(today);
   const days = [...grouped.values()]
-    .filter((g) => dateKey(g.date) >= todayKey)
+    .filter((g) => dateKey(g.date) > todayKey)
     .slice(0, 3)
     .map((g) => summarizeDay(g.date, g.cells));
 
@@ -226,7 +246,8 @@ function summarizeDay(date, cells) {
 
   const payload = {
     summitElevation: 3599,
-    note: "پیش‌بینی قله دیزین؛ شرایط جوی کوهستان می‌تواند سریع تغییر کند.",
+    title: "پیش‌بینی ۳ روز آینده",
+    note: "شرایط جوی کوهستان متغیر است. پیش از حرکت، آخرین وضعیت هوا و باز بودن مسیرها را بررسی کنید.",
     source: "Snow-Forecast.com",
     sourceUrl: SOURCE_URL,
     updatedAt: new Date().toISOString(),
@@ -239,7 +260,7 @@ function summarizeDay(date, cells) {
     "utf8"
   );
 
-  console.log("Updated Dizin summit forecast:", JSON.stringify(days));
+  console.log("Updated Dizin 3-day summit forecast:", JSON.stringify(days));
 })().catch((error) => {
   console.error(error);
   process.exit(1);
