@@ -12,6 +12,16 @@ function number(text) {
   return Number.isFinite(n) ? n : null;
 }
 
+function rowCells($, rowName, count) {
+  const row = $('table tr[data-row="' + rowName + '"]');
+  let cells = row.find("td").map((_, el) => $(el).text().replace(/\s+/g, " ").trim()).get();
+  if (cells.length < count) {
+    cells = row.children().map((_, el) => $(el).text().replace(/\s+/g, " ").trim()).get();
+  }
+  cells = cells.filter((v) => v !== "");
+  return cells.slice(-count);
+}
+
 function normalizeDay(text) {
   const raw = String(text || "").trim().split(/\s+/)[0].toLowerCase();
   return WEEKDAYS.find((day) => day.toLowerCase().startsWith(raw)) || null;
@@ -145,12 +155,20 @@ function summarizeDay(date, cells) {
       .map((p) => p.toLowerCase() === "night" ? "night" : p.toUpperCase());
   }
   const dayNames = $(".forecast-table-days__name").map((_, el) => $(el).text().trim()).get();
-  const summaries = $('table tr[data-row="phrases"] span').map((_, el) => $(el).text().trim()).get();
-  const winds = $('table tr[data-row="wind"] .forecast-table-wind__container svg text').map((_, el) => number($(el).text())).get();
-  const snows = $("span.snow").map((_, el) => number($(el).text()) || 0).get();
-  const maxTemps = $('table tr[data-row="temperature-max"] span.temp').map((_, el) => number($(el).text())).get();
-  const minTemps = $('table tr[data-row="temperature-min"] span.temp').map((_, el) => number($(el).text())).get();
-  const chills = $('table tr[data-row="temperature-chill"] span.temp').map((_, el) => number($(el).text())).get();
+  const periodCount = periods.length;
+  const phraseCells = rowCells($, "phrases", periodCount);
+  const windCells = rowCells($, "wind", periodCount);
+  const snowCells = rowCells($, "snow", periodCount);
+  const maxTempCells = rowCells($, "temperature-max", periodCount);
+  const minTempCells = rowCells($, "temperature-min", periodCount);
+  const chillCells = rowCells($, "temperature-chill", periodCount);
+
+  const summaries = phraseCells;
+  const winds = windCells.map(number);
+  const snows = snowCells.map((v) => number(v) || 0);
+  const maxTemps = maxTempCells.map(number);
+  const minTemps = minTempCells.map(number);
+  const chills = chillCells.map(number);
 
   const firstTimeRaw = periods[0];
   const firstTime = PERIODS.find((p) => p.toLowerCase() === String(firstTimeRaw).toLowerCase());
