@@ -1,12 +1,16 @@
 {
   "name": "dizin-weather-system",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
-  "description": "Automated Dizin summit weather story data updater",
+  "description": "Automated Dizin summit weather story generator",
   "scripts": {
-    "update-weather": "node scripts/update-weather.js"
+    "update-weather": "node scripts/update-weather.js",
+    "render-story": "node scripts/render-story.js"
   },
   "dependencies": {
     "cheerio": "1.0.0-rc.12"
+  },
+  "devDependencies": {
+    "playwright": "1.55.0"
   }
 }
