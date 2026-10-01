@@ -17,6 +17,7 @@
     <section class="story" id="story">
       <div class="story-bg" id="storyBg"></div>
       <div class="overlay"></div>
+      <div class="speed-lines" aria-hidden="true"></div>
 
       <header class="story-header">
         <div class="brand-mark" aria-label="Dizin Resort">
@@ -25,18 +26,38 @@
         </div>
         <div class="title-block">
           <h1>پیست اسکی دیزین</h1>
-          <p>پیش‌بینی سه‌روزه قله <bdi>۳۵۹۹</bdi> متر</p>
+          <p>FORECAST / SUMMIT</p>
+        </div>
+        <div class="summit-tag">
+          <span>SUMMIT</span>
+          <strong>3599 M</strong>
         </div>
       </header>
 
-      <div class="forecast-wrap">
-        <div class="summit-label">SUMMIT · 3599 M</div>
-        <div class="forecast-grid" id="forecastGrid"></div>
-      </div>
+      <section class="hero-weather" aria-label="وضعیت اصلی هوا">
+        <div class="hero-kicker" id="heroDay">—</div>
+        <div class="hero-row">
+          <div class="hero-icon" id="heroIcon">🌤️</div>
+          <div class="hero-temp" id="heroTemp">—°</div>
+        </div>
+        <div class="hero-meta">
+          <span>دمای حسی <bdi id="heroFeels">—°</bdi></span>
+          <span>باد <bdi id="heroWind">— km/h</bdi></span>
+          <span>برف <bdi id="heroSnow">— cm</bdi></span>
+        </div>
+      </section>
+
+      <section class="forecast-wrap">
+        <div class="section-label">
+          <span>03 DAY</span>
+          <strong>پیش‌بینی سه‌روزه</strong>
+        </div>
+        <div class="forecast-stack" id="forecastGrid"></div>
+      </section>
 
       <footer class="story-footer">
         <p id="note">شرایط جوی کوهستان متغیر است؛ پیش از حرکت آخرین اطلاعیه مجموعه را بررسی کنید.</p>
-        <span class="source">Snow-Forecast · Summit reference</span>
+        <span class="source">Snow-Forecast · Dizin Summit</span>
       </footer>
     </section>
   </main>
