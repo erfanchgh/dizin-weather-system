@@ -1,0 +1,12 @@
+{
+  "name": "dizin-weather-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automated Dizin summit weather story data updater",
+  "scripts": {
+    "update-weather": "node scripts/update-weather.js"
+  },
+  "dependencies": {
+    "snow-forecast-sfr": "^2.0.1"
+  }
+}
